@@ -26,7 +26,23 @@ The API is accessed via the {{domxref("Window.navigation")}} property, which ret
 
 ### Gestion de la navigation
 
-L'interface `navigation` possède plusieurs évenements, le plus notable est l'évenement {{domxref("Navigation/navigate_event", "navigate")}}. Il est déclenché quand [n'importe quel type de navigation](https://github.com/WICG/navigation-api#appendix-types-of-navigations) est initialisée. Cela signifie qu'il est possible de controler toutes les navigations.
+L'interface `navigation` possède plusieurs évenements, le plus notable est l'évenement {{domxref("Navigation/navigate_event", "navigate")}}. Il est déclenché quand [n'importe quel type de navigation](https://github.com/WICG/navigation-api#appendix-types-of-navigations) est initialisée. Cela signifie qu'il est possible de controler toutes les navigations à partir d'un seul endroit ce qui est idéal pour le routage des SPA. (Ce n'est pas le cas avec {{domxref("History API", "", "", "nocode")}} avec lequel il est parfois difficile de detecter et de gérer toutes les navigations.). Le gestionnaire d'évènement `navigate` reçoit en paramètre un objet {{domxref("NavigateEvent")}} qui contient des informations comme des détails sur la destination de navigation (type, données POST ou requête de téléchargement).
+
+L'évènement `NavigateEvent` possède aussi deux méthodes:
+
+- {{domxref("NavigateEvent.intercept", "intercept()")}} permet de spécifier un comportement personnalisé pour les navigations. Elle accepte les arguments suivants:
+  - handler : une fonction callback qui permet de spécifier ce qui arrive quand la navigation est effectuée et juste avant. Par exemple, il est possible de charger le contenu pertinent en fonction de l'URL ou de rediriger l'utilisateur vers une page d'authentification si l'URL pointe vers une page pour laquelle il faut être connecté et que l'utilisation ne l'est pas.
+  - D'autres propriétés qui permettent d'activer ou de désactiver le focus du navigateur ou de gérer le comportement du scroll une fois que la navigation est terminée.
+- {{domxref("NavigateEvent.scroll", "scroll()")}} permet d'initier manuellement le comportement du scroll du navigateur (par exemple pour atteindre un fragment dans l'URL) plutôt que laisser le navigateur s'en occuper automatiquement.
+
+Une fois que la navigation à été initialisée et que la fonction `intercept()` à été exécutée, une instance de {{domxref("NavigationTransition")}} est créée (accessible via {{domxref("Navigation.transition")}}). Vous pouvez l'utiliser pour suivre le processus de la navigation en cours.
+
+> [!NOTE]
+> Dans ce contexte, "transition" se rapporte à une transition entre deux entrées d'historique et non aux transitions CSS.
+
+> [!NOTE]
+> Vous pouvez aussi utiliser {{domxref("Event.preventDefault", "preventDefault()")}} afin de stopper entièrement la navigation pour la plus part des [types de navigation](/en-US/docs/Web/API/NavigateEvent/navigationType#value); cancellation of traverse navigations is not yet implemented.
+> 
 
 ### Handling navigations
 
