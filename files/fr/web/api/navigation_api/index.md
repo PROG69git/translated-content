@@ -2,18 +2,31 @@
 title: Navigation API
 short-title : Navigation API
 slug: Web/API/Navigation_API
-
+l10n:
+  sourceCommit: 9c27111e8c096a18881d96d15d6fd41558acf6e5 
 ---
 
 {{DefaultAPISidebar("Navigation API")}}
 
+L'**API Navigation** permet d'initier, d'intercepter et de gérer la navigation. Elle permet également de consulter l'historique de l'application. Il s'agit du successeur des précédentes fonctionalités comme {{domxref("History API", "", "", "nocode")}} ou {{domxref("window.location")}} qui comble leurs lacunes et est particulièrement adapté aux besoins des {{glossary("SPA", "single-page applications (SPAs)")}}.
+
 The **Navigation API** provides the ability to initiate, intercept, and manage browser navigation actions. It can also examine an application's history entries. This is a successor to previous web platform features such as the {{domxref("History API", "", "", "nocode")}} and {{domxref("window.location")}}, which solves their shortcomings and is specifically aimed at the needs of {{glossary("SPA", "single-page applications (SPAs)")}}.
+
+## Concept et utilisation
+
+Dans les SPA, le modèle de la page reste souvent le même. Seul le contenu est changé quand l'utilisateur visite les différentes pages. Par consequent, seulement une page est chargée par le naviagteur, ce qui pose un problème si l'utilisateur revient en arrière dans l'historique. Ce problème peut être résolu en utilisant l'API {{domxref("History API", "", "", "nocode")}} mais celle-ci n'est pas adaptée aux besoins des SPA. L'API Navigation a pour objectif la résolution de ce problème.
+
+Cette API est accessible via la propriété {{domxref("Window.navigation")}}, qui renvoie une référence d'un objet {{domxref("Navigation")}} global. Chaque objet `window` possède sa propre instance `navigation`.
 
 ## Concepts and usage
 
 In SPAs, the page template tends to stay the same during usage, and the content is dynamically rewritten as the user visits different pages or features. As a result, only one distinct page is loaded in the browser, which breaks the expected user experience of navigating back and forth between different locations in the viewing history. This problem can be solved to a degree via the {{domxref("History API", "", "", "nocode")}}, but it is not designed for the needs of SPAs. The Navigation API aims to bridge that gap.
 
 The API is accessed via the {{domxref("Window.navigation")}} property, which returns a reference to a global {{domxref("Navigation")}} object. Each `window` object has its own corresponding `navigation` instance.
+
+### Gestion de la navigation
+
+L'interface `navigation` possède plusieurs évenements, le plus notable est l'évenement {{domxref("Navigation/navigate_event", "navigate")}}. Il est déclenché quand [n'importe quel type de navigation](https://github.com/WICG/navigation-api#appendix-types-of-navigations) est initialisée. Cela signifie qu'il est possible de controler toutes les navigations.
 
 ### Handling navigations
 
