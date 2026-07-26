@@ -42,7 +42,8 @@ Une fois que la navigation à été initialisée et que la fonction `intercept()
 
 > [!NOTE]
 > Vous pouvez aussi utiliser {{domxref("Event.preventDefault", "preventDefault()")}} afin de stopper entièrement la navigation pour la plus part des [types de navigation](/en-US/docs/Web/API/NavigateEvent/navigationType#value); cancellation of traverse navigations is not yet implemented.
-> 
+
+Quand la promesse renvoyée par le callback `intercept()` est terminée, l'événement {{domxref("Navigation/navigatesuccess_event", "navigatesuccess")}} de l'objet `Navigation` est déclenché, vous autorisant à exécuter le code de nettoyage en cas de réussite. Si elle est rejetée, l'événement {{domxref("Navigation/navigateerror_event", "navigateerror")}} est déclenché, permettant de gérer l'erreur. Une propriété `finished` existe aussi. Elle est renvoyee par les fonctions de navigation 
 
 ### Handling navigations
 
