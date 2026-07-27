@@ -48,6 +48,18 @@ Quand la promesse renvoyée par le callback `intercept()` est terminée, l'évé
 > [!NOTE]
 > Avant qu l'API Navigation ne soit disponible, pour faire quelque chose de semblable, il fallait ecouter tous les évènements de click sur les liens, exécuter `e.preventDefault()`, utiliser {{domxref("History.pushState()")}} et ensuite modifier le contenu de la page en fonction de l'URL. De plus, ceci ne gèrerait pas toutes les navigations : seulement celles initialisées par un click de l'utilisateur sur un lien.
 
+### Mettre à jour et consulter l'historique 
+
+Pendant que l'utilisateur navigue dans votre application, chaque nouvelle navigation est à l'origine de la création d'une entrée d'historique. Chaque entrée d'hitorique est représentée par une instance de {{domxref("NavigationHistoryEntry")}}. Celle-ci contient différentes propriétés comme la l'URL ou des informations sur l'état. 
+Il est possible d'obtenir l'entrée courante en utilisant {{domxref("Navigation.currentEntry")}} et un tableau des entrées précédentes en utilisant {{domxref("Navigation.entries()")}}. Chaque objet `NavigationHistoryEntry` possède un évènement {{domxref("NavigationHistoryEntry/dispose_event", "dispose")}} qui est déclenchée quand l'entrée ne fait plus partie de l'historique du navigateur. Par exemple, si l'utilisateur revient trois fois en arrière puis charge une nouvelle page, trois entrées vont être supprimés et leurs événements dispose vont être déclenchés.
+
+> [!NOTE]
+> L'API Navigation montre seulement les entrées d'historique créées dans le contexte courant et qui ont la même origine que la page courante (les navigations à l'intérieur d'éléments {{htmlelement("iframe")}} ou les navigations "cross origin" ne sont pas montrées.), donnant une liste de tout l'historique juste pour votre application. Cela rend le parcours dans l'historique bien moins fragile qu'avec l'ancienne {{domxref("History API", "", "", "nocode")}}
+
+L'objet `Navigation` possede toutes les méthodes dont vous avez besoin pour mettre à jour et naviguer dans l'historique:
+
+
+
 ### Handling navigations
 
 The `navigation` interface has several associated events, the most notable being the {{domxref("Navigation/navigate_event", "navigate")}} event. This is firwhen [any type of navigation](https://github.com/WICG/navigation-api#appendix-types-of-navigations) is initiated, meaning that you can control all page navigations from one central place, ideal for routing functionality in SPA frameworks. (This is not the case with the {{domxref("History API", "", "", "nocode")}}, where it is sometimes hard to detect and respond to all navigations.) The `navigate` event handler is passed a {{domxref("NavigateEvent")}} object, which contains detailed information including details around the navigation's destination, type, whether it contains `POST` form data or a download request, and more.
