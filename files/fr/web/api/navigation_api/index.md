@@ -41,13 +41,16 @@ Une fois que la navigation à été initialisée et que la fonction `intercept()
 > Dans ce contexte, "transition" se rapporte à une transition entre deux entrées d'historique et non aux transitions CSS.
 
 > [!NOTE]
-> Vous pouvez aussi utiliser {{domxref("Event.preventDefault", "preventDefault()")}} afin de stopper entièrement la navigation pour la plus part des [types de navigation](/en-US/docs/Web/API/NavigateEvent/navigationType#value); cancellation of traverse navigations is not yet implemented.
+> Vous pouvez aussi utiliser {{domxref("Event.preventDefault", "preventDefault()")}} afin de stopper entièrement la navigation pour la plupart des [types de navigation](/en-US/docs/Web/API/NavigateEvent/navigationType#value); cancellation of traverse navigations is not yet implemented.
 
-Quand la promesse renvoyée par le callback `intercept()` est terminée, l'événement {{domxref("Navigation/navigatesuccess_event", "navigatesuccess")}} de l'objet `Navigation` est déclenché, vous autorisant à exécuter le code de nettoyage en cas de réussite. Si elle est rejetée, l'événement {{domxref("Navigation/navigateerror_event", "navigateerror")}} est déclenché, permettant de gérer l'erreur. Une propriété `finished` existe aussi. Elle est renvoyee par les fonctions de navigation 
+Quand la promesse renvoyée par le callback `intercept()` est terminée, l'événement {{domxref("Navigation/navigatesuccess_event", "navigatesuccess")}} de l'objet `Navigation` est déclenché, vous autorisant à exécuter le code de nettoyage en cas de réussite. Si elle est rejetée, l'événement {{domxref("Navigation/navigateerror_event", "navigateerror")}} est déclenché, permettant de gérer l'erreur. Une propriété `finished` existe aussi. Elle est renvoyee par les fonctions de navigation comme {{domxref("Navigation.navigate()")}} et est remplie ou rejetée en même temps que les évènements précédents sont déclenchés. Celà donne un autre moyen de gérer la réussite ou l'échec de la navigation.
+
+> [!NOTE]
+> Avant qu l'API Navigation ne soit disponible, pour faire quelque chose de semblable, il fallait ecouter tous les évènements de click sur les liens, exécuter `e.preventDefault()`, utiliser {{domxref("History.pushState()")}} et ensuite modifier le contenu de la page en fonction de l'URL. De plus, ceci ne gèrerait pas toutes les navigations : seulement celles initialisées par un click de l'utilisateur sur un lien.
 
 ### Handling navigations
 
-The `navigation` interface has several associated events, the most notable being the {{domxref("Navigation/navigate_event", "navigate")}} event. This is fired when [any type of navigation](https://github.com/WICG/navigation-api#appendix-types-of-navigations) is initiated, meaning that you can control all page navigations from one central place, ideal for routing functionality in SPA frameworks. (This is not the case with the {{domxref("History API", "", "", "nocode")}}, where it is sometimes hard to detect and respond to all navigations.) The `navigate` event handler is passed a {{domxref("NavigateEvent")}} object, which contains detailed information including details around the navigation's destination, type, whether it contains `POST` form data or a download request, and more.
+The `navigation` interface has several associated events, the most notable being the {{domxref("Navigation/navigate_event", "navigate")}} event. This is firwhen [any type of navigation](https://github.com/WICG/navigation-api#appendix-types-of-navigations) is initiated, meaning that you can control all page navigations from one central place, ideal for routing functionality in SPA frameworks. (This is not the case with the {{domxref("History API", "", "", "nocode")}}, where it is sometimes hard to detect and respond to all navigations.) The `navigate` event handler is passed a {{domxref("NavigateEvent")}} object, which contains detailed information including details around the navigation's destination, type, whether it contains `POST` form data or a download request, and more.
 
 The `NavigateEvent` object also provides two methods:
 
@@ -65,7 +68,6 @@ Once a navigation is initiated, and your `intercept()` handler is called, a {{do
 > You can also call {{domxref("Event.preventDefault", "preventDefault()")}} to stop the navigation entirely for most [navigation types](/en-US/docs/Web/API/NavigateEvent/navigationType#value); cancellation of traverse navigations is not yet implemented.
 
 When the promises returned by the `intercept()` handler functions fulfill, the `Navigation` object's {{domxref("Navigation/navigatesuccess_event", "navigatesuccess")}} event fires, allowing you to run cleanup code after a successful navigation has completed. If they reject, meaning the navigation has failed, {{domxref("Navigation/navigateerror_event", "navigateerror")}} fires instead, allowing you to gracefully handle failure case. There is also a `finished` property on the return value of navigation methods (such as {{domxref("Navigation.navigate()")}}), which fulfills or rejects at the same time as the aforementioned events are fired, providing another path for handling the success and failure cases.
-
 > [!NOTE]
 > Before the Navigation API was available, to do something similar you'd have to listen for all click events on links, run `e.preventDefault()`, perform the appropriate {{domxref("History.pushState()")}} call, then set up the page view based on the new URL. And this wouldn't handle all navigations — only user-initiated link clicks.
 
