@@ -41,12 +41,12 @@ Une fois que la navigation à été initialisée et que la fonction `intercept()
 > Dans ce contexte, "transition" se rapporte à une transition entre deux entrées d'historique et non aux transitions CSS.
 
 > [!NOTE]
-> Vous pouvez aussi utiliser {{domxref("Event.preventDefault", "preventDefault()")}} afin de stopper entièrement la navigation pour la plupart des [types de navigation](/en-US/docs/Web/API/NavigateEvent/navigationType#value); cancellation of traverse navigations is not yet implemented.
+> Il est aussi possible d'utiliser {{domxref("Event.preventDefault", "preventDefault()")}} afin de stopper entièrement la navigation pour la plupart des [types de navigation](/en-US/docs/Web/API/NavigateEvent/navigationType#value); cancellation of traverse navigations is not yet implemented.
 
-Quand la promesse renvoyée par le callback `intercept()` est terminée, l'événement {{domxref("Navigation/navigatesuccess_event", "navigatesuccess")}} de l'objet `Navigation` est déclenché, vous autorisant à exécuter le code de nettoyage en cas de réussite. Si elle est rejetée, l'événement {{domxref("Navigation/navigateerror_event", "navigateerror")}} est déclenché, permettant de gérer l'erreur. Une propriété `finished` existe aussi. Elle est renvoyee par les fonctions de navigation comme {{domxref("Navigation.navigate()")}} et est remplie ou rejetée en même temps que les évènements précédents sont déclenchés. Celà donne un autre moyen de gérer la réussite ou l'échec de la navigation.
+Quand la promesse renvoyée par le callback `intercept()` est terminée, l'événement {{domxref("Navigation/navigatesuccess_event", "navigatesuccess")}} de l'objet `Navigation` est déclenché, autorisant à exécuter le code de nettoyage en cas de réussite. Si elle est rejetée, l'événement {{domxref("Navigation/navigateerror_event", "navigateerror")}} est déclenché, permettant de gérer l'erreur. Une propriété `finished` existe aussi. Elle est renvoyée par les fonctions de navigation comme {{domxref("Navigation.navigate()")}} et est remplie ou rejetée en même temps que les évènements précédents sont déclenchés. Cela donne un autre moyen de gérer la réussite ou l'échec de la navigation.
 
 > [!NOTE]
-> Avant qu l'API Navigation ne soit disponible, pour faire quelque chose de semblable, il fallait ecouter tous les évènements de click sur les liens, exécuter `e.preventDefault()`, utiliser {{domxref("History.pushState()")}} et ensuite modifier le contenu de la page en fonction de l'URL. De plus, ceci ne gèrerait pas toutes les navigations : seulement celles initialisées par un click de l'utilisateur sur un lien.
+> Avant que l'API Navigation ne soit disponible, pour faire quelque chose de semblable, il fallait écouter tous les évènements de click sur les liens, exécuter `e.preventDefault()`, utiliser {{domxref("History.pushState()")}} et ensuite modifier le contenu de la page en fonction de l'URL. De plus, ceci ne gèrerait pas toutes les navigations : seulement celles initialisées par un click de l'utilisateur sur un lien.
 
 ### Mettre à jour et consulter l'historique 
 
@@ -56,8 +56,38 @@ Il est possible d'obtenir l'entrée courante en utilisant {{domxref("Navigation.
 > [!NOTE]
 > L'API Navigation montre seulement les entrées d'historique créées dans le contexte courant et qui ont la même origine que la page courante (les navigations à l'intérieur d'éléments {{htmlelement("iframe")}} ou les navigations "cross origin" ne sont pas montrées.), donnant une liste de tout l'historique juste pour votre application. Cela rend le parcours dans l'historique bien moins fragile qu'avec l'ancienne {{domxref("History API", "", "", "nocode")}}
 
-L'objet `Navigation` possede toutes les méthodes dont vous avez besoin pour mettre à jour et naviguer dans l'historique:
+L'objet `Navigation` possède toutes les méthodes dont vous avez besoin pour mettre à jour et naviguer dans l'historique:
 
+- {{domxref("Navigation.navigate", "navigate()")}}
+  - : Navigue vers une nouvelle URL, créant une nouvelle entrée d'historique.
+- {{domxref("Navigation.reload", "reload()")}}
+  - : Recharge l'URL courante.
+- {{domxref("Navigation.back", "back()")}}
+  - : Navigue si possible vers l'entrée d'historique précédente.
+- {{domxref("Navigation.forward", "forward()")}}
+  - : Navigue si possible vers l'entrée d'historique suivante.
+- {{domxref("Navigation.traverseTo", "traverseTo()")}}
+  - : Navigue vers une entrée spécifique identifiée par sa propriété {{domxref("NavigationHistoryEntry.key")}}.
+ 
+Chacune de ces méthodes renvoie un objet contenant deux promesses — `{ committed, finished }`. Cela permet d'attendre pour accomplir une action que :
+
+- `committed` soit remplie, ce qui signifie l'URL visible a changé et qu'une nouvelle instance de {{domxref("NavigationHistoryEntry")}} a été créée.
+- `finished` soit remplie, ce qui signifie que toutes les promesses renvoyée par votre fonction `intercept()` sont remplies. C'est l'équivalent de la résolution de {{domxref("NavigationTransition.finished")}}, quand l'événement {{domxref("Navigation/navigatesuccess_event", "navigatesuccess")}} est déclenché, comme mentionné précédemment.
+- n'importe laquelle des promesses est rejetée, ce qui signifie que la navigation a échoué pour une raison quelconque.
+
+### State
+
+L'API Navigation vous permet de stocker un état dans chaque entrée d'historique. Cela peut être ce que vous voulez (par exemple une propriété `visitCount` qui enregistre le nombre de fois où l'utilisateur a visité la page).
+
+Pour obtenir l'état d'un {{domxref("NavigationHistoryEntry")}}, il faut utiliser sa methode {{domxref("NavigationHistoryEntry.getState", "getState()")}}. Elle renvoie `undefined` si aucune valeur n'a encore été définie.
+
+Modifier l'état est un peu plus compliqué. Il n'est pas possible de retrouver l'état et de le mettre à jour directement, la copie stockée dans l'entrée ne changerait pas. A la place, il faut utiliser les méthodes {{domxref("Navigation.navigate", "navigate()")}} ou {{domxref("Navigation.reload", "reload()")}} : chacune d'elles prend optionnellement un objet comme paramètre. Celui ci inclut une propriété `state` qui contient le nouvel état à stocker dans l'entrée d'historique. Quand la navigation sera finie, le changement d'état sera effectué.
+
+Cependant, dans certains cas, le changement d'état est Independent d'une navigation ou d'un rechargement. Par exemple quand une page contient un élément "{{htmlelement("details")}}. Dans ce cas, vous aurez peut-être besoin de stocker l'état de l'élément `details` dans l'entrée d'historique pour le restaurer quand l'utilisateur reviendra sur la page. Pour cela, vous pouvez utiliser {{domxref("Navigation.updateCurrentEntry()")}}. L'évènement {{domxref("Navigation/currententrychange_event", "currententrychange")}} sera déclenché quand la mise à jour de l'état aura été effectuée.
+
+### Limitations
+
+L'API Navigation possède cependant quelques limitations : 
 
 
 ### Handling navigations
